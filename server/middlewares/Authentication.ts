@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import UnAuthenticatedError from "../errors/unAuthenticatedError";
 import { User } from "../interfaces/User";
 
-const verifyToken = (req: Request, res:Response, next: NextFunction) => {
+export const verifyToken = (req: Request, res:Response, next: NextFunction) => {
     const token = req.header('Authorization');
     if(!token) throw new UnAuthenticatedError("Access Denied.")
     

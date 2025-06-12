@@ -3,7 +3,7 @@ import cors from "cors";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import connectDB from "./connectDB/connect";
-
+import AuthRouter from "./routes/Auth";
 dotenv.config();
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(json());
 app.get("/", (_, res) => {
   res.send("Hey");
 });
-
+app.use("/api/auth", AuthRouter);
 
 const PORT = process.env.PORT || 5000;
 
