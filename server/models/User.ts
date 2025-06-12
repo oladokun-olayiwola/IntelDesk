@@ -11,7 +11,7 @@ const UserSchema = new Schema({
     },
     role: {
             type: String,
-            enum: ["Supervisor", "Officer", "Admin", "User"]
+            enum: ["supervisor", "officer", "admin", "citizen"]
     },
     rank: {
         type: String,
@@ -21,6 +21,10 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
+    email: {
+        type: String,
+        required: true,
+    }
 })
 
 export const User =  model("Users", UserSchema);
