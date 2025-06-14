@@ -2,15 +2,17 @@ import express from "express";
 import cors from "cors";
 import { json } from "body-parser";
 import dotenv from "dotenv";
-import connectDB from "./connectDB/connect";
-import AuthRouter from "./routes/Auth";
+import connectDB from "./src/connectDB/connect";
+import AuthRouter from "./src/routes/Auth";
+import IncidentRouter from "./src/routes/Incident"
+import { verifyToken } from "./src/middlewares/Authentication";
 dotenv.config();
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://localhost:5173",
     optionsSuccessStatus: 200,
     credentials: true,
   })
@@ -21,6 +23,7 @@ app.get("/", (_, res) => {
   res.send("Hey");
 });
 app.use("/api/auth", AuthRouter);
+app.use("/api/incident", verifyToken, IncidentRouter)
 
 const PORT = process.env.PORT || 5000;
 
