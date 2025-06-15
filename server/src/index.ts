@@ -14,7 +14,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://intel-desk.vercel.app/",
+    origin: "https://intel-desk.vercel.app",
     optionsSuccessStatus: 200,
     credentials: true,
   })
