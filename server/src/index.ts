@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import { json } from "body-parser";
 import dotenv from "dotenv";
-import connectDB from "./src/connectDB/connect";
-import AuthRouter from "./src/routes/Auth";
-import IncidentRouter from "./src/routes/Incident"
-import { verifyToken } from "./src/middlewares/Authentication";
-import CriminalRecord from "./src/routes/CriminalRecord"
-import errorHandler from "./src/middlewares/errorHandler";
+import connectDB from "./connectDB/connect";
+import AuthRouter from "./routes/Auth";
+import IncidentRouter from "./routes/Incident"
+import { verifyToken } from "./middlewares/Authentication";
+import CriminalRecord from "./routes/CriminalRecord"
+import errorHandler from "./middlewares/errorHandler";
 dotenv.config();
 
 const app = express();
