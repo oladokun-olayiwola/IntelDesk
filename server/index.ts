@@ -22,7 +22,10 @@ app.use(
 app.use(json());
 
 app.get("/", (_, res) => {
-  res.send("Hey");
+  res.send("Server is running");
+});
+app.get("/api/test", (_, res) => {
+  res.json({ status: "API is working!" });
 });
 app.use("/api/auth", AuthRouter);
 app.use("/api/incidents", verifyToken, IncidentRouter);
