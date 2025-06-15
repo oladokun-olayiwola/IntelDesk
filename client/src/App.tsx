@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
+import SupervisorDashboard from "./pages/SupervisorDashboard";
+import Report from "./pages/Report";
+import ProtectedRoute from "./components/ProtectedRoutes";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound";
+import CitizenDashboard from "./pages/CitizenDashboard";
+import OfficerDashboard from "./pages/OfficerDashboard";
+import CriminalProfileForm from "./pages/CriminalProfileForm";
+import { Toaster } from "react-hot-toast";
+import Layout from "./components/Layout";
+import Incidents from "./pages/Incidents";
+import MyIncidents from "./pages/MyIncidents";
+import Criminals from "./pages/Criminals";
+import { Contact } from "lucide-react";
+import About from "./pages/About";
+import Features from "./pages/Features";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <Toaster position="top-right" reverseOrder={false} />
+      <Routes>
+        {/* Shared Layout with Navbar */}
+        <Route element={<Layout />}>
+          {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="features" element={<Features />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
 
-export default App
+          {/* Citizen Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['citizen']} />}>
+            <Route path="/dashboard/citizen" element={<CitizenDashboard />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/my-incidents" element={<MyIncidents />} />
+          </Route>
+
+          {/* Officer Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['officer']} />}>
+            <Route path="/dashboard/officer" element={<OfficerDashboard role="officer" />} />
+            <Route path="/criminal/profile" element={<CriminalProfileForm />} />
+          </Route>
+
+          {/* Supervisor Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['supervisor']} />}>
+            <Route path="/dashboard/supervisor" element={<SupervisorDashboard />} />
+          </Route>
+
+          {/* Shared Protected Routes (officer + supervisor) */}
+          <Route element={<ProtectedRoute allowedRoles={['officer', 'supervisor']} />}>
+            <Route path="/incidents" element={<Incidents />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['officer', 'supervisor', "citizen"]} />}>
+            <Route path="/criminals" element={<Criminals />} />
+          </Route>
+
+          {/* Fallback Route */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </>
+  );
+};
+
+export default App;

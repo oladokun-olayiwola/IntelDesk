@@ -1,0 +1,143 @@
+import React, { useState } from "react";
+import api from "@/lib/api";
+
+const CriminalProfileForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    alias: "",
+    description: "",
+    crimes: "",
+    chargedToCourt: false,
+    bailed: false,
+    surety: {
+      fullName: "",
+      address: "",
+      phoneNumber: "",
+    },
+  });
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const target = e.target;
+  const { name, value } = target;
+
+  // If it's a checkbox, use checked
+  const inputValue = target instanceof HTMLInputElement && target.type === "checkbox"
+    ? target.checked
+    : value;
+
+  if (name.startsWith("surety.")) {
+    const key = name.split(".")[1];
+    setFormData(prev => ({
+      ...prev,
+      surety: { ...prev.surety, [key]: inputValue }
+    }));
+  } else {
+    setFormData(prev => ({
+      ...prev,
+      [name]: inputValue
+    }));
+  }
+};
+
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.bailed) {
+      const { fullName, address, phoneNumber } = formData.surety;
+      if (!fullName || !address || !phoneNumber) {
+        setMessage("Surety details are required when bailed is true.");
+        return;
+      }
+    }
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("alias", formData.alias);
+    data.append("description", formData.description);
+    data.append("crimes", formData.crimes);
+    data.append("chargedToCourt", String(formData.chargedToCourt));
+    data.append("bailed", String(formData.bailed));
+    if (formData.bailed) {
+      data.append("surety.fullName", formData.surety.fullName);
+      data.append("surety.address", formData.surety.address);
+      data.append("surety.phoneNumber", formData.surety.phoneNumber);
+    }
+    if (photo) data.append("photo", photo);
+
+    try {
+      await api.post("criminals", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setMessage("Criminal profile created successfully!");
+    } catch (error) {
+      setMessage("Failed to create profile.");
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">Criminals/Suspects Profile Form</h1>
+      {message && <p className="mb-4 text-blue-500 font-semibold">{message}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block font-semibold">Full Name</label>
+          <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full border rounded p-2" />
+        </div>
+
+        <div>
+          <label className="block font-semibold">Alias</label>
+          <input type="text" name="alias" value={formData.alias} onChange={handleChange} className="w-full border rounded p-2" />
+        </div>
+
+        <div>
+          <label className="block font-semibold">Description</label>
+          <textarea name="description" required rows={4} value={formData.description} onChange={handleChange} className="w-full border rounded p-2" />
+        </div>
+
+        <div>
+          <label className="block font-semibold">Known Crimes</label>
+          <input type="text" name="crimes" value={formData.crimes} onChange={handleChange} placeholder="e.g. Theft, Fraud" className="w-full border rounded p-2" />
+        </div>
+
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center">
+            <input type="checkbox" name="chargedToCourt" checked={formData.chargedToCourt} onChange={handleChange} className="mr-2" />
+            Charged to Court
+          </label>
+          <label className="flex items-center">
+            <input type="checkbox" name="bailed" checked={formData.bailed} onChange={handleChange} className="mr-2" />
+            Bailed
+          </label>
+        </div>
+
+        {formData.bailed && (
+          <div className="space-y-4 bg-gray-50 p-4 rounded border">
+            <h3 className="font-bold text-gray-700">Surety Information</h3>
+            <input type="text" name="surety.fullName" placeholder="Full Name" required value={formData.surety.fullName} onChange={handleChange} className="w-full border rounded p-2" />
+            <input type="text" name="surety.address" placeholder="Address" required value={formData.surety.address} onChange={handleChange} className="w-full border rounded p-2" />
+            <input type="text" name="surety.phoneNumber" placeholder="Phone Number" required value={formData.surety.phoneNumber} onChange={handleChange} className="w-full border rounded p-2" />
+          </div>
+        )}
+
+        <div>
+          <label className="block font-semibold">Photo</label>
+          <input type="file" accept="image/*" onChange={handlePhotoChange} className="w-full" />
+        </div>
+
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Profile</button>
+      </form>
+    </div>
+  );
+};
+
+export default CriminalProfileForm;
