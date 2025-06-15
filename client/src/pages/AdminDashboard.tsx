@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import axios from "axios";
 import api from "@/lib/api";
 
 interface Incident {
@@ -26,8 +25,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
         const [usersRes, incidentsRes] = await Promise.all([
-          api.get("/api/users"),
-          api.get("/api/incidents"),
+          api.get("users"),
+          api.get("incidents"),
         ]);
         setUsers(usersRes.data || []);
         setIncidents(Array.isArray(incidentsRes.data) ? incidentsRes.data : []);

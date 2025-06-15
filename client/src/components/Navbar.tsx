@@ -1,24 +1,26 @@
 import { Link } from "react-router-dom";
 import { User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.jpg";
 
 const Navbar = () => {
-  const {isLogin, setIsLogin } = useAuth()
+  const {isAuthenticated, setIsAuthenticated, role } = useAuth()
 
   const handleLogout = () => {
     // perform logout logic
     console.log("Logging out...");
-    setIsLogin(false);
+    setIsAuthenticated(false);
   };
 
   return (
     <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-blue-600">IntelDesk</h1>
-
+<Link to={`/dashboard/${role}`}>
+        <img src={logo} alt="IntelDesk Logo" className="h-8 w-auto" />
+      </Link>
       <nav className="flex items-center gap-6">
         
 
-        {isLogin ? (
+        {isAuthenticated ? (
           <div className="relative group cursor-pointer">
             <User className="w-6 h-6 text-gray-700 group-hover:text-blue-600" />
 
@@ -34,13 +36,13 @@ const Navbar = () => {
           </div>
         ) : <ul className="flex space-x-4">
           <li className="text-gray-700 hover:text-blue-600 cursor-pointer">
-            <Link to="/">Features</Link>
+            <Link to="/features">Features</Link>
           </li>
           <li className="text-gray-700 hover:text-blue-600 cursor-pointer">
-            <Link to="/">About</Link>
+            <Link to="/about">About</Link>
           </li>
           <li className="text-gray-700 hover:text-blue-600 cursor-pointer">
-            <Link to="/">Contact</Link>
+            <Link to="/contact">Contact</Link>
           </li>
         </ul>
         }

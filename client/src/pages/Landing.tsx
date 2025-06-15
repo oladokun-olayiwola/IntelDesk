@@ -1,4 +1,3 @@
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -6,8 +5,6 @@ import { Link } from "react-router-dom";
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      <Navbar/>
-
       <main className="flex-1 flex items-center justify-center p-6">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
