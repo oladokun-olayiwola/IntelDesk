@@ -51,7 +51,7 @@ export const register = [
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_KEY!,
-      { expiresIn: '10h' }
+      { expiresIn: '1d' }
     );
 
     res.status(200).json({
@@ -68,7 +68,7 @@ export const register = [
 ];
 
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   if (!email || !password) {
     throw new badRequestError('Email and password are required.');
@@ -84,13 +84,17 @@ export const login = async (req: Request, res: Response) => {
     throw new badRequestError('Officers cannot login as citizens');
   }
 
+  if (user.role !== req.body.role ) {
+    throw new badRequestError('Invalid credentials. Please check your login details and try again.');
+  }
+
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) throw new badRequestError('Invalid credentials.');
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
     process.env.JWT_KEY!,
-    { expiresIn: '10h' }
+    { expiresIn: '1d' }
   );
 
   res.status(200).json({

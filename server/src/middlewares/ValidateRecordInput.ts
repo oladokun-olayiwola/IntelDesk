@@ -1,20 +1,26 @@
-// src/middleware/validateRecord.ts
+// src/middleware/validateCriminalRecord.ts
 import { Request, Response, NextFunction } from 'express';
 import { CriminalRecordInput } from '../types/criminalRecord';
 
-export const validateRecordInput = (req: Request, res: Response, next: NextFunction) => {
-  const { name, description, crimes, shortee } = req.body as CriminalRecordInput;
+export const validateCriminalRecord = (req: Request, res: Response, next: NextFunction) => {
+  const { bailed, surety } = req.body as CriminalRecordInput;
 
-  if (!name || !description || !crimes || !shortee) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
+  if (bailed) {
+    if (!surety) {
+      return res.status(400).json({ 
+        message: 'Surety information is required when bailed is true' 
+      });
+    }
 
-  if (!Array.isArray(crimes)) {
-    return res.status(400).json({ message: 'Crimes must be an array' });
-  }
+    const requiredFields = ['fullName', 'address', 'phoneNumber', 'relationship', 'idType', 'idNumber'];
+    const missingFields = requiredFields.filter(field => !surety[field as keyof typeof surety]);
 
-  if (!shortee.fullName || !shortee.address || !shortee.phoneNumber) {
-    return res.status(400).json({ message: 'Shortee information incomplete' });
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: 'Missing required surety fields',
+        missingFields
+      });
+    }
   }
 
   next();

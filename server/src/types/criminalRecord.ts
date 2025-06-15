@@ -1,8 +1,10 @@
-// src/types/criminalRecord.ts
-export interface Shortee {
+export interface Surety {
   fullName: string;
   address: string;
   phoneNumber: string;
+  relationship: string;
+  idType?: 'national' | 'passport' | 'driver';
+  idNumber?: string;
 }
 
 export interface CriminalRecordInput {
@@ -12,7 +14,7 @@ export interface CriminalRecordInput {
   crimes: string[];
   chargedToCourt?: boolean;
   bailed?: boolean;
-  shortee: Shortee;
+  surety?: Surety;
 }
 
 export interface CriminalRecordDocument extends CriminalRecordInput {

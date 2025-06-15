@@ -1,12 +1,13 @@
-import customAPIError from './customAPIError';
-import {StatusCodes} from 'http-status-codes'
+import CustomAPIError from './customAPIError';
+import { StatusCodes } from 'http-status-codes';
 
-class badRequestError extends customAPIError {
-  statusCode
-  constructor(message: string) {
-    super(message);
-    this.statusCode = StatusCodes.BAD_REQUEST;
+class BadRequestError extends CustomAPIError {
+  constructor(message: string = 'Bad Request') {
+    super(message, StatusCodes.BAD_REQUEST);
+
+    // Explicitly set the prototype for ES5 targets
+    Object.setPrototypeOf(this, BadRequestError.prototype);
   }
 }
 
-export default badRequestError
+export default BadRequestError;

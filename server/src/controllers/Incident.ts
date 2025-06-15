@@ -1,10 +1,11 @@
+import { Types } from "mongoose";
 import badRequestError from "../errors/badRequestError";
 import notFoundError from "../errors/notFoundError";
 import UnAuthenticatedError from "../errors/unAuthenticatedError";
 import { Incident } from "../models/Incident";
 import { Request, Response } from "express";
 
-const getHeader = (req: Request, key: string): string | undefined => {
+export const getHeader = (req: Request, key: string): string | undefined => {
   const value = req.headers[key];
   return Array.isArray(value) ? value[0] : value;
 };
@@ -22,16 +23,16 @@ export const createIncident = async (req: Request, res: Response) => {
       throw new UnAuthenticatedError("Only citizens can report incidents.");
     }
 
-    const { title, description, location } = req.body;
+    const { title, description, address } = req.body;
 
-    if (!title || !description || !location) {
-      throw new badRequestError("Title, description, and location are required.");
+    if (!title || !description || !address) {
+      throw new badRequestError("Title, description, and address are required.");
     }
 
     const newIncident = new Incident({
       title,
       description,
-      location,
+      address,
       reported_by: userId,
       status: "pending",
     });
@@ -50,7 +51,7 @@ export const createIncident = async (req: Request, res: Response) => {
 
 export const getAllIncidents = async (req: Request, res: Response) => {
   try {
-    const incidents = await Incident.find().sort({ created_at: -1 });
+    const incidents = await Incident.find().sort({ created_at: -1 }).populate('reported_by', 'name email');
     res.status(200).json(incidents);
   } catch (error) {
     console.error("Error fetching incidents:", error);
@@ -79,7 +80,7 @@ export const updateIncident = async (req: Request, res: Response) => {
       throw new UnAuthenticatedError("Not authenticated");
     }
 
-    const { status, title, description, location } = req.body;
+    const { status, title, description, address } = req.body;
 
     const incident = await Incident.findById(req.params.id);
     if (!incident) throw new notFoundError("Incident not found.");
@@ -105,7 +106,7 @@ export const updateIncident = async (req: Request, res: Response) => {
     const updates: any = {};
     if (title) updates.title = title;
     if (description) updates.description = description;
-    if (location) updates.location = location;
+    if (address) updates.address = address;
     if (status) updates.status = status;
 
     const updatedIncident = await Incident.findByIdAndUpdate(
@@ -141,5 +142,68 @@ export const deleteIncident = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting incident:", error);
     res.status(500).json({ message: "Failed to delete incident" });
+  }
+};
+
+export const getIncidentsByReporter = async (req: Request, res: Response) => {
+  try {
+    // Get user ID from header
+    const userId = getHeader(req, 'x-user-id');
+    
+    // Validate user ID exists and is valid MongoDB ID
+    if (!userId) {
+      throw new badRequestError('User ID is required in x-user-id header');
+    }
+    
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new badRequestError('Invalid user ID format');
+    }
+
+    // Convert to ObjectId
+    const reporterId = new Types.ObjectId(userId);
+
+    // Optional query parameters
+    const { status, limit = '10', page = '1' } = req.query;
+    const limitNum = parseInt(limit as string);
+    const pageNum = parseInt(page as string);
+
+    // Build query
+    const query: any = { reported_by: reporterId };
+    if (status) query.status = status;
+
+    // Get incidents with pagination
+    const incidents = await Incident.find(query)
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+      .populate('reported_by', 'name email'); // Adjust fields as needed
+
+    // Get total count for pagination
+    const totalCount = await Incident.countDocuments(query);
+
+    if (incidents.length === 0) {
+      throw new notFoundError('No incidents found for this user');
+    }
+
+    res.status(200).json({
+      success: true,
+      count: incidents.length,
+      total: totalCount,
+      page: pageNum,
+      pages: Math.ceil(totalCount / limitNum),
+      data: incidents
+    });
+
+  } catch (error) {
+    console.error('Error fetching incidents by reporter:', error);
+    
+    if (error instanceof badRequestError || error instanceof notFoundError) {
+      throw error;
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching incidents'
+    });
   }
 };
