@@ -1,1 +1,1 @@
-export const BASE_URL = "http://inteldesk-1.onrender.com/api/"
+export const BASE_URL = "https://inteldesk-1.onrender.com/api/"
