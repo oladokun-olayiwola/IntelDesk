@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: your-express-service  # Custom name for your service
+    runtime: node
+    buildCommand: cd server && npm install && npm run build  # Path to your server folder
+    startCommand: cd server && npm start  # Path to your server folder
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
