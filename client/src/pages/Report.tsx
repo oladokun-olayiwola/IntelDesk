@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+// import { useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+// import L from 'leaflet';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
-const markerIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+// const markerIcon = new L.Icon({
+//   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+//   iconSize: [25, 41],
+//   iconAnchor: [12, 41],
+// });
 
-const LocationPicker = ({
-  setCoordinates,
-}: {
-  setCoordinates: (coords: [number, number]) => void;
-}) => {
-  useMapEvents({
-    click(e) {
-      setCoordinates([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-  return null;
-};
+// const LocationPicker = ({
+//   setCoordinates,
+// }: {
+//   setCoordinates: (coords: [number, number]) => void;
+// }) => {
+//   useMapEvents({
+//     click(e) {
+//       setCoordinates([e.latlng.lat, e.latlng.lng]);
+//     },
+//   });
+//   return null;
+// };
 
 const ReportIncidentPage = () => {
   const { role } = useAuth();
