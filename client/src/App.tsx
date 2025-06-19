@@ -14,7 +14,7 @@ import Layout from "./components/Layout";
 import Incidents from "./pages/Incidents";
 import MyIncidents from "./pages/MyIncidents";
 import Criminals from "./pages/Criminals";
-import { Contact } from "lucide-react";
+import Contact from "./pages/Contacts";
 import About from "./pages/About";
 import Features from "./pages/Features";
 
