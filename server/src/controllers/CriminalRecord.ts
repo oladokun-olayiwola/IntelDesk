@@ -6,16 +6,21 @@ import badRequestError from '../errors/badRequestError';
 
 export const createRecord = async (req: Request, res: Response) => {
   try {
-    const { bailed, surety, ...recordData } = req.body;
+    const { bailed, surety, caseID, ...recordData } = req.body;
+
+    if (!caseID) {
+      throw new badRequestError("caseID is required");
+    }
 
     if (bailed && !surety) {
-      throw new badRequestError("Surety information is required when bailed is true")
+      throw new badRequestError("Surety information is required when bailed is true");
     }
 
     const newRecord = await CriminalRecord.create({
       ...recordData,
+      caseID,
       bailed,
-      surety: bailed ? surety : undefined
+      surety: bailed ? surety : undefined,
     });
 
     res.status(201).json(newRecord);
@@ -26,27 +31,33 @@ export const createRecord = async (req: Request, res: Response) => {
 
 export const updateRecord = async (req: Request, res: Response) => {
   try {
-    const { bailed, surety } = req.body;
+    const { bailed, surety, caseID, ...updateData } = req.body;
 
-    // Prevent removing surety if bailed is true
+    // Block caseID updates (if needed)
+    if (caseID) {
+      throw new badRequestError("caseID cannot be modified");
+    }
+
+    // Validate surety if bailed
     if (bailed && !surety) {
       const existingRecord = await CriminalRecord.findById(req.params.id);
       if (existingRecord?.bailed && !surety) {
-        throw new badRequestError("Cannot remove surety from a bailed record")
+        throw new badRequestError("Cannot remove surety from a bailed record");
       }
     }
 
     const updatedRecord = await CriminalRecord.findByIdAndUpdate(
       req.params.id,
       {
-        ...req.body,
-        surety: bailed ? surety : undefined
+        ...updateData,
+        bailed,
+        surety: bailed ? surety : undefined,
       },
       { new: true, runValidators: true }
     );
 
     if (!updatedRecord) {
-      throw new notFoundError("Record not found")
+      throw new notFoundError("Record not found");
     }
 
     res.status(200).json(updatedRecord);

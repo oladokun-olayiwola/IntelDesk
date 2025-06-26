@@ -7,6 +7,7 @@ const CriminalProfileForm = () => {
     alias: "",
     description: "",
     crimes: "",
+    caseID: "",
     chargedToCourt: false,
     bailed: false,
     surety: {
@@ -15,32 +16,31 @@ const CriminalProfileForm = () => {
       phoneNumber: "",
     },
   });
+
   const [photo, setPhoto] = useState<File | null>(null);
   const [message, setMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  const target = e.target;
-  const { name, value } = target;
+    const target = e.target;
+    const { name, value } = target;
 
-  // If it's a checkbox, use checked
-  const inputValue = target instanceof HTMLInputElement && target.type === "checkbox"
-    ? target.checked
-    : value;
+    const inputValue = target instanceof HTMLInputElement && target.type === "checkbox"
+      ? target.checked
+      : value;
 
-  if (name.startsWith("surety.")) {
-    const key = name.split(".")[1];
-    setFormData(prev => ({
-      ...prev,
-      surety: { ...prev.surety, [key]: inputValue }
-    }));
-  } else {
-    setFormData(prev => ({
-      ...prev,
-      [name]: inputValue
-    }));
-  }
-};
-
+    if (name.startsWith("surety.")) {
+      const key = name.split(".")[1];
+      setFormData(prev => ({
+        ...prev,
+        surety: { ...prev.surety, [key]: inputValue }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: inputValue
+      }));
+    }
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -64,6 +64,7 @@ const CriminalProfileForm = () => {
     data.append("alias", formData.alias);
     data.append("description", formData.description);
     data.append("crimes", formData.crimes);
+    data.append("caseID", formData.caseID);
     data.append("chargedToCourt", String(formData.chargedToCourt));
     data.append("bailed", String(formData.bailed));
     if (formData.bailed) {
@@ -107,6 +108,11 @@ const CriminalProfileForm = () => {
         <div>
           <label className="block font-semibold">Known Crimes</label>
           <input type="text" name="crimes" value={formData.crimes} onChange={handleChange} placeholder="e.g. Theft, Fraud" className="w-full border rounded p-2" />
+        </div>
+
+        <div>
+          <label className="block font-semibold">Case ID</label>
+          <input type="text" name="caseID" required value={formData.caseID} onChange={handleChange} placeholder="e.g. CASE123456" className="w-full border rounded p-2" />
         </div>
 
         <div className="flex items-center space-x-4">
