@@ -52,7 +52,8 @@ Create a `.env` file in the `server/` directory:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/inteldesk
+MONGODB_CONNECTION_STRING = Your mongo db connection string
+JWT_KEY = Your JWT secret key
 ```
 
 ### 4. Run the development servers
@@ -106,4 +107,4 @@ MIT License. See `LICENSE` file for details.
 
 ---
 
-Developed with by IBRAHIM.
+Developed by IBRAHIM.
