@@ -21,26 +21,32 @@ const CriminalProfileForm = () => {
   const [message, setMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const target = e.target;
-    const { name, value } = target;
+  const target = e.target;
+  const { name, value } = target;
 
-    const inputValue = target instanceof HTMLInputElement && target.type === "checkbox"
-      ? target.checked
-      : value;
+  let inputValue: string | boolean = value;
 
-    if (name.startsWith("surety.")) {
-      const key = name.split(".")[1];
-      setFormData(prev => ({
-        ...prev,
-        surety: { ...prev.surety, [key]: inputValue }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: inputValue
-      }));
-    }
-  };
+  if (target instanceof HTMLInputElement && target.type === "checkbox") {
+    inputValue = target.checked;
+  }
+
+  if (name.startsWith("surety.")) {
+    const key = name.split(".")[1];
+    setFormData(prev => ({
+      ...prev,
+      surety: {
+        ...prev.surety,
+        [key]: inputValue as string,
+      },
+    }));
+  } else {
+    setFormData(prev => ({
+      ...prev,
+      [name]: inputValue,
+    }));
+  }
+};
+
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -63,16 +69,20 @@ const CriminalProfileForm = () => {
     data.append("name", formData.name);
     data.append("alias", formData.alias);
     data.append("description", formData.description);
-    data.append("crimes", formData.crimes);
+    data.append("crimes", JSON.stringify(formData.crimes.split(",").map((c) => c.trim())));
     data.append("caseID", formData.caseID);
-    data.append("chargedToCourt", String(formData.chargedToCourt));
-    data.append("bailed", String(formData.bailed));
+    data.append("chargedToCourt", formData.chargedToCourt ? "true" : "false");
+    data.append("bailed", formData.bailed ? "true" : "false");
+
     if (formData.bailed) {
       data.append("surety.fullName", formData.surety.fullName);
       data.append("surety.address", formData.surety.address);
       data.append("surety.phoneNumber", formData.surety.phoneNumber);
     }
-    if (photo) data.append("photo", photo);
+
+    if (photo) {
+      data.append("photo", photo);
+    }
 
     try {
       await api.post("criminals", data, {
@@ -140,7 +150,9 @@ const CriminalProfileForm = () => {
           <input type="file" accept="image/*" onChange={handlePhotoChange} className="w-full" />
         </div>
 
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Profile</button>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Submit Profile
+        </button>
       </form>
     </div>
   );

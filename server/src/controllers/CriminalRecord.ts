@@ -1,70 +1,149 @@
-// src/controllers/criminalRecord.ts
 import { Request, Response } from 'express';
 import { CriminalRecord } from '../models/CriminalRecord';
-import notFoundError from '../errors/notFoundError';
+import fs from 'fs';
 import badRequestError from '../errors/badRequestError';
+import notFoundError from '../errors/notFoundError';
+
+const parseBoolean = (value: any) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === 'true';
+  return false;
+};
 
 export const createRecord = async (req: Request, res: Response) => {
+  const photo = req.file?.path;
+
   try {
-    const { bailed, surety, caseID, ...recordData } = req.body;
+    const {
+      name,
+      alias,
+      description,
+      crimes,
+      caseID,
+      chargedToCourt,
+      bailed: bailedRaw,
+    } = req.body;
+
+    const bailed = parseBoolean(bailedRaw);
 
     if (!caseID) {
+      if (photo) fs.unlinkSync(photo);
       throw new badRequestError("caseID is required");
     }
 
-    if (bailed && !surety) {
-      throw new badRequestError("Surety information is required when bailed is true");
+    const crimesList = typeof crimes === 'string' ? JSON.parse(crimes) : [];
+
+    let surety;
+    if (bailed) {
+      const fullName = req.body['surety.fullName'];
+      const address = req.body['surety.address'];
+      const phoneNumber = req.body['surety.phoneNumber'];
+
+      if (!fullName || !address || !phoneNumber) {
+        if (photo) fs.unlinkSync(photo);
+        throw new badRequestError("Surety information is required when bailed is true");
+      }
+
+      surety = { fullName, address, phoneNumber };
     }
 
     const newRecord = await CriminalRecord.create({
-      ...recordData,
+      name,
+      alias,
+      description,
+      crimes: crimesList,
       caseID,
+      chargedToCourt: parseBoolean(chargedToCourt),
       bailed,
       surety: bailed ? surety : undefined,
+      photo: photo || undefined
     });
 
     res.status(201).json(newRecord);
   } catch (error) {
+    if (photo) fs.unlinkSync(photo);
+    console.error(error);
     res.status(500).json({ message: 'Failed to create record', error });
   }
 };
 
 export const updateRecord = async (req: Request, res: Response) => {
-  try {
-    const { bailed, surety, caseID, ...updateData } = req.body;
+  const photo = req.file?.path;
 
-    // Block caseID updates (if needed)
-    if (caseID) {
+  try {
+    const {
+      name,
+      alias,
+      description,
+      crimes,
+      chargedToCourt,
+      bailed: bailedRaw,
+    } = req.body;
+
+    const bailed = parseBoolean(bailedRaw);
+
+    if (req.body.caseID) {
+      if (photo) fs.unlinkSync(photo);
       throw new badRequestError("caseID cannot be modified");
     }
 
-    // Validate surety if bailed
-    if (bailed && !surety) {
-      const existingRecord = await CriminalRecord.findById(req.params.id);
-      if (existingRecord?.bailed && !surety) {
-        throw new badRequestError("Cannot remove surety from a bailed record");
+    const crimesList = typeof crimes === 'string' ? JSON.parse(crimes) : [];
+
+    const oldRecord = await CriminalRecord.findById(req.params.id);
+    if (!oldRecord) {
+      if (photo) fs.unlinkSync(photo);
+      throw new notFoundError("Record not found");
+    }
+
+    let surety;
+    if (bailed) {
+      const fullName = req.body['surety.fullName'];
+      const address = req.body['surety.address'];
+      const phoneNumber = req.body['surety.phoneNumber'];
+
+      if (!fullName || !address || !phoneNumber) {
+        if (photo) fs.unlinkSync(photo);
+        throw new badRequestError("Surety information is required when bailed is true");
       }
+
+      surety = { fullName, address, phoneNumber };
     }
 
     const updatedRecord = await CriminalRecord.findByIdAndUpdate(
       req.params.id,
       {
-        ...updateData,
+        name,
+        alias,
+        description,
+        crimes: crimesList,
+        chargedToCourt: parseBoolean(chargedToCourt),
         bailed,
         surety: bailed ? surety : undefined,
+        photo: photo || undefined
       },
       { new: true, runValidators: true }
     );
 
     if (!updatedRecord) {
-      throw new notFoundError("Record not found");
+      if (photo) fs.unlinkSync(photo);
+      throw new notFoundError("Record not found after update");
+    }
+
+    // Clean up old photo
+    if (photo && oldRecord.photo) {
+      fs.unlink(oldRecord.photo, (err) => {
+        if (err) console.error('Failed to delete old photo:', err);
+      });
     }
 
     res.status(200).json(updatedRecord);
   } catch (error) {
+    if (photo) fs.unlinkSync(photo);
+    console.error(error);
     res.status(500).json({ message: 'Failed to update record', error });
   }
 };
+
 
 export const getAllRecords = async (req: Request, res: Response) => {
   try {
@@ -75,7 +154,6 @@ export const getAllRecords = async (req: Request, res: Response) => {
   }
 };
 
-// Delete
 export const deleteRecord = async (req: Request, res: Response) => {
   try {
     const deletedRecord = await CriminalRecord.findByIdAndDelete(req.params.id);
@@ -88,7 +166,6 @@ export const deleteRecord = async (req: Request, res: Response) => {
   }
 };
 
-// Read One
 export const getRecordById = async (req: Request, res: Response) => {
   try {
     const record = await CriminalRecord.findById(req.params.id);

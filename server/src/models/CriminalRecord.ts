@@ -1,4 +1,3 @@
-// src/models/CriminalRecord.ts
 import { Schema, model, Document } from 'mongoose';
 
 interface Surety {
@@ -18,6 +17,7 @@ interface CriminalRecordInterface extends Document {
   surety: Surety;
   createdAt: Date;
   updatedAt: Date;
+  photo?: string;
 }
 
 const SuretySchema = new Schema({
@@ -40,7 +40,8 @@ const CriminalRecordSchema = new Schema(
     crimes: { type: [String], required: true },
     chargedToCourt: { type: Boolean, default: false },
     bailed: { type: Boolean, default: false },
-    surety: { type: SuretySchema, required: true },
+    surety: { type: SuretySchema },
+    photo: {type: String},
   },
   {
     timestamps: true,
