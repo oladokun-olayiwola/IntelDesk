@@ -1,4 +1,5 @@
 import express from "express";
+import multer from 'multer';
 import cors from "cors";
 import { json } from "body-parser";
 import dotenv from "dotenv";
@@ -6,11 +7,14 @@ import connectDB from "./connectDB/connect";
 import AuthRouter from "./routes/Auth";
 import IncidentRouter from "./routes/Incident"
 import { verifyToken } from "./middlewares/Authentication";
-import CriminalRecord from "./routes/CriminalRecord"
+import CriminalRecordRouter from "./routes/CriminalRecord"
+import UserRouter from "./routes/User"
 import errorHandler from "./middlewares/errorHandler";
 dotenv.config();
 
 const app = express();
+const upload = multer();
+
 
 app.use(
   cors({
@@ -29,7 +33,8 @@ app.get("/api/test", (_, res) => {
 });
 app.use("/api/auth", AuthRouter);
 app.use("/api/incidents", verifyToken, IncidentRouter);
-app.use("/api/criminals", verifyToken, CriminalRecord)
+app.use("/api/criminals", verifyToken, CriminalRecordRouter)
+app.use("/api/users", verifyToken, UserRouter)
 
 
 app.use(errorHandler);

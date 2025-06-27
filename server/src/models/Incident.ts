@@ -1,4 +1,4 @@
-import { model, Schema, Document, Types } from "mongoose";
+import mongoose, { model, Schema, Document, Types } from "mongoose";
 
 // Location type definition
 interface Location {
@@ -15,6 +15,7 @@ export interface IncidentInterface extends Document {
   address: Location | string | string[]; // Can be GeoJSON or string address
   created_at: Date;
   updated_at: Date;
+  assigned_to: mongoose.Types.ObjectId
 }
 
 const IncidentSchema = new Schema<IncidentInterface>({
@@ -56,6 +57,10 @@ const IncidentSchema = new Schema<IncidentInterface>({
       message: 'Status must be either pending, in_progress, or completed'
     },
     default: "pending"
+  },
+  assigned_to: {
+    type: Schema.Types.ObjectId,
+    ref: "Staff"
   }
 }, {
   timestamps: { 

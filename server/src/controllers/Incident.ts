@@ -51,7 +51,7 @@ export const createIncident = async (req: Request, res: Response) => {
 
 export const getAllIncidents = async (req: Request, res: Response) => {
   try {
-    const incidents = await Incident.find().sort({ created_at: -1 }).populate('reported_by', 'name email');
+    const incidents = await Incident.find().sort({ created_at: -1 }).populate('reported_by', 'fullName email');
     res.status(200).json(incidents);
   } catch (error) {
     console.error("Error fetching incidents:", error);
@@ -80,12 +80,11 @@ export const updateIncident = async (req: Request, res: Response) => {
       throw new UnAuthenticatedError("Not authenticated");
     }
 
-    const { status, title, description, address } = req.body;
+    const { status, title, description, address, assigned_to } = req.body;
 
     const incident = await Incident.findById(req.params.id);
     if (!incident) throw new notFoundError("Incident not found.");
 
-    // Check if user is the reporter or has appropriate role
     const isReporter = incident.reported_by.toString() === userId;
     const isAuthorizedRole = ["supervisor", "officer"].includes(userRole);
 
@@ -93,12 +92,10 @@ export const updateIncident = async (req: Request, res: Response) => {
       throw new UnAuthenticatedError("Not authorized to update this incident");
     }
 
-    // Citizens can only update certain fields
     if (userRole === "citizen" && status && status !== incident.status) {
       throw new badRequestError("Citizens cannot change incident status");
     }
 
-    // Only supervisors/officers can change status
     if (status && !["supervisor", "officer"].includes(userRole)) {
       throw new UnAuthenticatedError("Only supervisors/officers can change incident status");
     }
@@ -107,7 +104,9 @@ export const updateIncident = async (req: Request, res: Response) => {
     if (title) updates.title = title;
     if (description) updates.description = description;
     if (address) updates.address = address;
+    if (assigned_to) updates.status = "in_progress"
     if (status) updates.status = status;
+    if (assigned_to) updates.assigned_to = assigned_to
 
     const updatedIncident = await Incident.findByIdAndUpdate(
       req.params.id,

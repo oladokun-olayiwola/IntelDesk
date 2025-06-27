@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Card } from "@/components/ui/card";
 import api from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Incident {
   _id: string;
@@ -9,15 +10,20 @@ interface Incident {
   description: string;
   status: string;
   reported_by?: {
-    name?: string;
+    fullName?: string;
     email?: string;
   };
   created_at: string;
 }
 
+
 const Incidents = () => {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const {role: userRole} = useAuth()
+
+  const canEditStatus = userRole === "supervisor";
 
   useEffect(() => {
     const fetchIncidents = async () => {
@@ -33,6 +39,25 @@ const Incidents = () => {
 
     fetchIncidents();
   }, []);
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    setUpdatingId(id);
+    try {
+      await api.put(`incidents/${id}`, { status: newStatus });
+      setIncidents((prev) =>
+        prev.map((incident) =>
+          incident._id === id ? { ...incident, status: newStatus } : incident
+        )
+      );
+      toast.success("Status updated");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update status");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const statusOptions = ["pending", "in progress", "resolved"];
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -57,8 +82,27 @@ const Incidents = () => {
                 <tr key={incident._id} className="border-t hover:bg-gray-50">
                   <td className="p-3">{incident.title}</td>
                   <td className="p-3">{incident.description}</td>
-                  <td className="p-3 capitalize">{incident.status}</td>
-                  <td className="p-3">{incident.reported_by?.name || "N/A"}</td>
+                  <td className="p-3">
+                    {canEditStatus ? (
+                      <select
+                        className="border rounded p-1"
+                        value={incident.status}
+                        disabled={updatingId === incident._id}
+                        onChange={(e) =>
+                          handleStatusChange(incident._id, e.target.value)
+                        }
+                      >
+                        {statusOptions.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="capitalize">{incident.status}</span>
+                    )}
+                  </td>
+                  <td className="p-3">{incident.reported_by?.fullName || "N/A"}</td>
                   <td className="p-3">
                     {new Date(incident.created_at).toLocaleDateString()}
                   </td>

@@ -17,6 +17,7 @@ import Criminals from "./pages/Criminals";
 import Contact from "./pages/Contacts";
 import About from "./pages/About";
 import Features from "./pages/Features";
+import ManageOfficers from "./pages/ManageOfficers";
 
 const App = () => {
   return (
@@ -49,6 +50,7 @@ const App = () => {
           {/* Supervisor Routes */}
           <Route element={<ProtectedRoute allowedRoles={['supervisor']} />}>
             <Route path="/dashboard/supervisor" element={<SupervisorDashboard />} />
+            <Route path="/officers/manage" element={<ManageOfficers />} />
           </Route>
 
           {/* Shared Protected Routes (officer + supervisor) */}
