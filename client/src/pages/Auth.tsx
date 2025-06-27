@@ -13,7 +13,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [rank, setRank] = useState('');
   const [assigned, setAssigned] = useState('');
-  const { role, setRole, setIsAuthenticated, isLogin, setIsLogin } = useAuth();
+  const { role, setRole, setIsAuthenticated, isLogin, setIsLogin, login } = useAuth();
   const navigate = useNavigate();
  
   const handleLogin = async () => {
@@ -31,8 +31,7 @@ const Auth = () => {
       const response = await api.post(`${BASE_URL}${endpoint}`, payload);
     
       if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
-        setRole(response.data.user.role);
+        login(response.data.token, response.data.user.role)
         setIsAuthenticated(true);
         navigate(`/dashboard/${response.data.user.role}`);
       }
@@ -41,7 +40,6 @@ const Auth = () => {
   const handleRoleChange = (value: string) => {
     if (isUserRole(value)) {
       setRole(value);
-      // Reset rank/assigned when changing role
       if (value !== 'supervisor' && value !== 'officer') {
         setRank('');
         setAssigned('');
