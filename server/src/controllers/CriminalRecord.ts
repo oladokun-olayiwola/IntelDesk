@@ -22,6 +22,8 @@ export const createRecord = async (req: Request, res: Response) => {
       caseID,
       chargedToCourt,
       bailed: bailedRaw,
+      status,
+      gender,
     } = req.body;
 
     const bailed = parseBoolean(bailedRaw);
@@ -55,8 +57,10 @@ export const createRecord = async (req: Request, res: Response) => {
       caseID,
       chargedToCourt: parseBoolean(chargedToCourt),
       bailed,
+      status,
+      gender,
       surety: bailed ? surety : undefined,
-      photo: photo || undefined
+      photo: photo || undefined,
     });
 
     res.status(201).json(newRecord);
@@ -78,6 +82,8 @@ export const updateRecord = async (req: Request, res: Response) => {
       crimes,
       chargedToCourt,
       bailed: bailedRaw,
+      status,
+      gender,
     } = req.body;
 
     const bailed = parseBoolean(bailedRaw);
@@ -118,8 +124,10 @@ export const updateRecord = async (req: Request, res: Response) => {
         crimes: crimesList,
         chargedToCourt: parseBoolean(chargedToCourt),
         bailed,
+        status,
+        gender,
         surety: bailed ? surety : undefined,
-        photo: photo || undefined
+        photo: photo || undefined,
       },
       { new: true, runValidators: true }
     );
@@ -129,7 +137,6 @@ export const updateRecord = async (req: Request, res: Response) => {
       throw new notFoundError("Record not found after update");
     }
 
-    // Clean up old photo
     if (photo && oldRecord.photo) {
       fs.unlink(oldRecord.photo, (err) => {
         if (err) console.error('Failed to delete old photo:', err);
@@ -143,6 +150,7 @@ export const updateRecord = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Failed to update record', error });
   }
 };
+
 
 
 export const getAllRecords = async (req: Request, res: Response) => {

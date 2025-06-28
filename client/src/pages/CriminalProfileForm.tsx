@@ -8,8 +8,10 @@ const CriminalProfileForm = () => {
     description: "",
     crimes: "",
     caseID: "",
+    gender: "male",
     chargedToCourt: false,
     bailed: false,
+    status: "under_investigation",
     surety: {
       fullName: "",
       address: "",
@@ -20,33 +22,32 @@ const CriminalProfileForm = () => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [message, setMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  const target = e.target;
-  const { name, value } = target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const target = e.target;
+    const { name, value } = target;
 
-  let inputValue: string | boolean = value;
+    let inputValue: string | boolean = value;
 
-  if (target instanceof HTMLInputElement && target.type === "checkbox") {
-    inputValue = target.checked;
-  }
+    if (target instanceof HTMLInputElement && target.type === "checkbox") {
+      inputValue = target.checked;
+    }
 
-  if (name.startsWith("surety.")) {
-    const key = name.split(".")[1];
-    setFormData(prev => ({
-      ...prev,
-      surety: {
-        ...prev.surety,
-        [key]: inputValue as string,
-      },
-    }));
-  } else {
-    setFormData(prev => ({
-      ...prev,
-      [name]: inputValue,
-    }));
-  }
-};
-
+    if (name.startsWith("surety.")) {
+      const key = name.split(".")[1];
+      setFormData(prev => ({
+        ...prev,
+        surety: {
+          ...prev.surety,
+          [key]: inputValue as string,
+        },
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: inputValue,
+      }));
+    }
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -71,8 +72,10 @@ const CriminalProfileForm = () => {
     data.append("description", formData.description);
     data.append("crimes", JSON.stringify(formData.crimes.split(",").map((c) => c.trim())));
     data.append("caseID", formData.caseID);
+    data.append("gender", formData.gender);
     data.append("chargedToCourt", formData.chargedToCourt ? "true" : "false");
     data.append("bailed", formData.bailed ? "true" : "false");
+    data.append("status", formData.status);
 
     if (formData.bailed) {
       data.append("surety.fullName", formData.surety.fullName);
@@ -123,6 +126,28 @@ const CriminalProfileForm = () => {
         <div>
           <label className="block font-semibold">Case ID</label>
           <input type="text" name="caseID" required value={formData.caseID} onChange={handleChange} placeholder="e.g. CASE123456" className="w-full border rounded p-2" />
+        </div>
+
+        {/* ✅ Gender Dropdown */}
+        <div>
+          <label className="block font-semibold">Gender</label>
+          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full border rounded p-2">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        {/* Status Dropdown */}
+        <div>
+          <label className="block font-semibold">Status</label>
+          <select name="status" value={formData.status} onChange={handleChange} className="w-full border rounded p-2">
+            <option value="under_investigation">Under Investigation</option>
+            <option value="detained">Detained</option>
+            <option value="bailed">Bailed</option>
+            <option value="charged">Charged to Court</option>
+            <option value="released">Released</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
         </div>
 
         <div className="flex items-center space-x-4">

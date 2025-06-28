@@ -6,7 +6,7 @@ interface Surety {
   phoneNumber: string;
 }
 
-interface CriminalRecordInterface extends Document {
+export interface CriminalRecordInterface extends Document {
   name: string;
   alias?: string;
   description: string;
@@ -14,10 +14,12 @@ interface CriminalRecordInterface extends Document {
   crimes: string[];
   chargedToCourt: boolean;
   bailed: boolean;
-  surety: Surety;
+  surety?: Surety;
+  gender?: string;
+  status?: string;
+  photo?: string;
   createdAt: Date;
   updatedAt: Date;
-  photo?: string;
 }
 
 const SuretySchema = new Schema({
@@ -26,7 +28,7 @@ const SuretySchema = new Schema({
   phoneNumber: { type: String, required: true },
 });
 
-const CriminalRecordSchema = new Schema(
+const CriminalRecordSchema = new Schema<CriminalRecordInterface>(
   {
     name: { type: String, required: true },
     alias: { type: String },
@@ -41,7 +43,13 @@ const CriminalRecordSchema = new Schema(
     chargedToCourt: { type: Boolean, default: false },
     bailed: { type: Boolean, default: false },
     surety: { type: SuretySchema },
-    photo: {type: String},
+    gender: { type: String, enum: ["male", "female",], default: "male" },
+    status: {
+      type: String,
+      enum: ["under_investigation", "detained", "bailed", "charged", "released", "dismissed"],
+      default: "under_investigation",
+    },
+    photo: { type: String },
   },
   {
     timestamps: true,
