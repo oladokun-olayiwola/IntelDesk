@@ -18,6 +18,7 @@ import Contact from "./pages/Contacts";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import ManageOfficers from "./pages/ManageOfficers";
+import CriminalDetails from "./pages/CriminalDetails";
 
 const App = () => {
   return (
@@ -60,6 +61,7 @@ const App = () => {
 
           <Route element={<ProtectedRoute allowedRoles={['officer', 'supervisor', "citizen"]} />}>
             <Route path="/criminals" element={<Criminals />} />
+            <Route path="/criminal/:id" element={<CriminalDetails />} />
           </Route>
 
           {/* Fallback Route */}

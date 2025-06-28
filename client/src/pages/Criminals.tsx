@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { Card } from "@/components/ui/card";
-import api from "@/lib/api";
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { Card } from '@/components/ui/card';
+import api from '@/lib/api';
+import { Link } from 'react-router-dom';
 
 interface Criminal {
   _id: string;
@@ -19,10 +20,10 @@ const Criminals = () => {
   useEffect(() => {
     const fetchCriminals = async () => {
       try {
-        const res = await api.get("criminals");
+        const res = await api.get('criminals');
         setCriminals(res.data);
       } catch (err: any) {
-        toast.error(err.response?.data?.message || "Failed to fetch criminals");
+        toast.error(err.response?.data?.message || 'Failed to fetch criminals');
       } finally {
         setLoading(false);
       }
@@ -33,7 +34,9 @@ const Criminals = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-blue-600 mb-6">Criminal Records</h1>
+      <h1 className="text-3xl font-bold text-blue-600 mb-6">
+        Criminal Records
+      </h1>
 
       {loading ? (
         <p className="text-center">Loading...</p>
@@ -50,14 +53,18 @@ const Criminals = () => {
               </tr>
             </thead>
             <tbody>
-              {criminals.map((criminal) => (
+              {criminals.map(criminal => (
                 <tr key={criminal._id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{criminal.name}</td>
+                  <td className="p-3 text-blue-600 underline">
+                    <Link to={`/criminal/${criminal._id}`}>
+                      {criminal.name}
+                    </Link>
+                  </td>
                   <td className="p-3 capitalize">{criminal.gender}</td>
                   <td className="p-3">
                     {criminal.crimes?.length > 0
-                      ? criminal.crimes.join(", ")
-                      : "N/A"}
+                      ? criminal.crimes.join(', ')
+                      : 'N/A'}
                   </td>
                   <td className="p-3 capitalize">{criminal.status}</td>
                   <td className="p-3">
