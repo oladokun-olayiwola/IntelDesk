@@ -22,9 +22,9 @@ const LandingPage = () => {
         </motion.div>
       </main>
 
-      <footer className="bg-white shadow-inner py-4 text-center text-gray-500 text-sm">
+      {/* <footer className="bg-white shadow-inner py-4 text-center text-gray-500 text-sm">
         &copy; {new Date().getFullYear()} IntelDesk. All rights reserved.
-      </footer>
+      </footer> */}
     </div>
   );
 };

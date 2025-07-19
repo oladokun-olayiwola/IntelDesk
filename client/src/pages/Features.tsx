@@ -7,7 +7,7 @@ const Features = () => (
     <ul className="space-y-4 text-gray-700 list-disc list-inside text-base">
       <li><strong>Real-time Incident Reporting</strong> – Instantly capture and submit incidents as they unfold.</li>
       <li><strong>Role-Based Dashboards</strong> – Tailored views for citizens, responders, and administrators.</li>
-      <li><strong>Geolocation Tracking</strong> – Pinpoint incidents and monitor activity across regions.</li>
+      {/* <li><strong>Geolocation Tracking</strong> – Pinpoint incidents and monitor activity across regions.</li> */}
       <li><strong>Secure Communication Channels</strong> – Ensure sensitive information stays protected.</li>
       <li><strong>Data Analytics & Insights</strong> – Drive smarter decisions with actionable reports.</li>
     </ul>
