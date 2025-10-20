@@ -101,10 +101,6 @@ Backend will run on `http://localhost:5000`.
 * Make sure to never expose sensitive credentials.
 * Enable HTTPS and environment-specific configurations in production.
 
-## 📄 License
-
-MIT License. See `LICENSE` file for details.
-
 ---
 
-Developed by IBRAHIM.
+Developed by Olayiwola.
